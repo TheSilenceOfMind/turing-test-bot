@@ -13,6 +13,9 @@ import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 
@@ -62,9 +65,20 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+    private String getFileContent(String fileName) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(fileName)));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
     @Override
     public String getBotToken() {
-        return "508094284:AAFQHS3WYVIFt_HIE5O3UvvEcrD-IlTEgXQ";
+        return getFileContent("src/main/resources/token.txt");
     }
 
     @SuppressWarnings("deprecation")
