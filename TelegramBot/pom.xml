@@ -47,7 +47,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
                             <mainClass>
-                                Bot
+                                ru.itmo.telegram.api.Bot
                             </mainClass>
                         </manifest>
                     </archive>
@@ -74,6 +74,12 @@
             <artifactId>stanford-corenlp</artifactId>
             <version>3.8.0</version>
             <classifier>models</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

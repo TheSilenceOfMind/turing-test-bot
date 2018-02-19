@@ -1,9 +1,11 @@
-/**
+package ru.itmo.telegram.api; /**
  * github.com/TheSilenceOfMind
  * Copyright (c) 2018
  * All rights reserved.
  */
 
+import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -20,16 +22,14 @@ import java.util.HashMap;
 
 
 public class Bot extends TelegramLongPollingBot {
+    public static final String TOKEN_FILENAME = "src/main/resources/token.txt";
     private static HashMap<Integer, Integer> countOfGreetings;
+
+    @SneakyThrows
     public static void main(String[] args) {
         countOfGreetings = new HashMap<>();
         ApiContextInitializer.init();
-        TelegramBotsApi botapi = new TelegramBotsApi();
-        try {
-            botapi.registerBot(new Bot());
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        new TelegramBotsApi().registerBot(new Bot());
     }
 
     @Override
@@ -55,7 +55,6 @@ public class Bot extends TelegramLongPollingBot {
             String fullUserName =
                     (user.getFirstName() == null ? "" : user.getFirstName()) + " " +
                             (user.getLastName() == null ? "" : user.getLastName());
-//            System.out.println(userId); // log info about user
             String greeting =
                     "Hello, ".concat(fullUserName)
                             .concat(" ! I've said you, that I'll **** you about ")
@@ -70,23 +69,23 @@ public class Bot extends TelegramLongPollingBot {
             return new String(Files.readAllBytes(Paths.get(fileName)));
         }
         catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            return "";
         }
 
     }
 
     @Override
     public String getBotToken() {
-        return getFileContent("src/main/resources/token.txt");
+        return getFileContent(TOKEN_FILENAME);
     }
 
-    @SuppressWarnings("deprecation")
+
     private void sendMsg(Message msg, String text) {
         SendMessage s = new SendMessage();
         s.setChatId(msg.getChatId());
         s.setText(text);
         try {
+            //noinspection deprecation
             sendMessage(s);
         } catch (TelegramApiException e){
             e.printStackTrace();
