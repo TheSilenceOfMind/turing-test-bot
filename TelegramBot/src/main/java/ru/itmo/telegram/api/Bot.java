@@ -1,11 +1,12 @@
-package ru.itmo.telegram.api; /**
+package ru.itmo.telegram.api;
+
+/**
  * github.com/TheSilenceOfMind
  * Copyright (c) 2018
  * All rights reserved.
  */
 
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -15,14 +16,12 @@ import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.HashMap;
-
+import java.util.Scanner;
 
 public class Bot extends TelegramLongPollingBot {
-    public static final String TOKEN_FILENAME = "src/main/resources/token.txt";
+    private static final String TOKEN_FILENAME = "/token.txt";
     private static HashMap<Integer, Integer> countOfGreetings;
 
     @SneakyThrows
@@ -64,14 +63,16 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+    @SneakyThrows
     private String getFileContent(String fileName) {
-        try {
-            return new String(Files.readAllBytes(Paths.get(fileName)));
+        String res = null;
+        try(InputStream inputStream = Bot.class.getResourceAsStream(fileName)) {
+            Scanner sc = new Scanner(inputStream).useDelimiter("\\n");
+            while (sc.hasNext()) {
+                res = sc.next();
+            }
         }
-        catch (IOException e) {
-            return "";
-        }
-
+        return res;
     }
 
     @Override
