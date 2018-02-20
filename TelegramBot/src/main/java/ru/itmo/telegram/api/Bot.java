@@ -6,7 +6,7 @@ package ru.itmo.telegram.api;
  * All rights reserved.
  */
 
-import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -20,15 +20,20 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Scanner;
 
+@Log4j2
 public class Bot extends TelegramLongPollingBot {
-    private static final String TOKEN_FILENAME = "/token.txt";
+    private static final String TOKEN_FILENAME = "/token.txth";
     private static HashMap<Integer, Integer> countOfGreetings;
 
-    @SneakyThrows
     public static void main(String[] args) {
         countOfGreetings = new HashMap<>();
         ApiContextInitializer.init();
-        new TelegramBotsApi().registerBot(new Bot());
+        try {
+            new TelegramBotsApi().registerBot(new Bot());
+        }
+        catch (Exception e) {
+            log.error("RegisterBot exception in main()", e);
+        }
     }
 
     @Override
@@ -63,7 +68,6 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    @SneakyThrows
     private String getFileContent(String fileName) {
         String res = null;
         try(InputStream inputStream = Bot.class.getResourceAsStream(fileName)) {
@@ -71,6 +75,8 @@ public class Bot extends TelegramLongPollingBot {
             while (sc.hasNext()) {
                 res = sc.next();
             }
+        } catch (Exception e) {
+            log.error("get token exception", e);
         }
         return res;
     }
@@ -89,7 +95,7 @@ public class Bot extends TelegramLongPollingBot {
             //noinspection deprecation
             sendMessage(s);
         } catch (TelegramApiException e){
-            e.printStackTrace();
+            log.error("send msg exception", e);
         }
     }
 }
