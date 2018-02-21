@@ -25,6 +25,7 @@ public class Bot extends TelegramLongPollingBot {
     private static final String settingsFilename = "/settings.properties";
     private String botUsername;
     private String token;
+    private TextProcessor textProcessor;
 
     private static HashMap<Integer, Integer> countOfGreetings;
 
@@ -33,21 +34,23 @@ public class Bot extends TelegramLongPollingBot {
         ApiContextInitializer.init();
         try {
             new TelegramBotsApi().registerBot(new Bot());
-        }
-        catch (Exception e) {
-            log.error("RegisterBot exception in main()", e);
+        } catch (Exception e) {
+            log.fatal("Exception in main()", e);
         }
     }
 
     private Bot() {
         Properties prop = new Properties();
-        try(InputStream inputStream = Bot.class.getResourceAsStream(settingsFilename)) {
+        try (InputStream inputStream = Bot.class.getResourceAsStream(settingsFilename)) {
             prop.load(inputStream);
             botUsername = prop.getProperty("bot_username");
             token = prop.getProperty("token");
-            log.info("property-field initialized!");
+
+            textProcessor = new TextProcessor();
+
+            log.info("Bot-class constructor successfully worked out!");
         } catch (Exception e) {
-            log.fatal("Couldn't load props file!", e);
+            log.fatal("Fatal error in Bot-class constructor!", e);
         }
     }
 
@@ -85,6 +88,8 @@ public class Bot extends TelegramLongPollingBot {
                             .concat(countOfGreetings.get(userId).toString())
                             .concat(" times!");
             sendMsg(msg, greeting);
+        } else {
+            sendMsg(msg, textProcessor.generateAnswer(requestText));
         }
     }
 
@@ -95,7 +100,7 @@ public class Bot extends TelegramLongPollingBot {
         try {
             //noinspection deprecation
             sendMessage(s);
-        } catch (TelegramApiException e){
+        } catch (TelegramApiException e) {
             log.error("send msg exception", e);
         }
     }

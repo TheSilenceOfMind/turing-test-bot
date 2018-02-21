@@ -88,6 +88,22 @@
             <version>LATEST</version>
             <optional>true</optional>
         </dependency>
+
+        <!-- Simplified NLU API: https://howtodoinjava.com/ai/java-aiml-chatbot-example/ -->
+        <dependency>
+            <artifactId>com.google</artifactId>
+            <groupId>Ab</groupId>
+            <version>0.0.4.3</version>
+        </dependency>
+
     </dependencies>
 
+    <!-- register path to use local files from lib-directory simultaneously with
+    common maven repo ~/.m2 -->
+    <repositories>
+        <repository>
+            <id>my-local-repo</id>
+            <url>file://${basedir}/lib</url>
+        </repository>
+    </repositories>
 </project>
