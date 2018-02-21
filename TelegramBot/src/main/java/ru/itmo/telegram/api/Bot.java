@@ -18,11 +18,14 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Scanner;
+import java.util.Properties;
 
 @Log4j2
 public class Bot extends TelegramLongPollingBot {
-    private static final String TOKEN_FILENAME = "/token.txth";
+    private static final String settingsFilename = "/settings.properties";
+    private String botUsername;
+    private String token;
+
     private static HashMap<Integer, Integer> countOfGreetings;
 
     public static void main(String[] args) {
@@ -36,21 +39,38 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+    private Bot() {
+        Properties prop = new Properties();
+        try(InputStream inputStream = Bot.class.getResourceAsStream(settingsFilename)) {
+            prop.load(inputStream);
+            botUsername = prop.getProperty("bot_username");
+            token = prop.getProperty("token");
+            log.info("property-field initialized!");
+        } catch (Exception e) {
+            log.fatal("Couldn't load props file!", e);
+        }
+    }
+
     @Override
     public String getBotUsername() {
-        return "test_the_silence_bot";
+        return botUsername;
+    }
+
+    @Override
+    public String getBotToken() {
+        return token;
     }
 
     @Override
     public void onUpdateReceived(Update e) {
         Message msg = e.getMessage();
-        String txt = msg.getText();
+        String requestText = msg.getText();
 
         // retrieve info about user to process data and make a response
         User user = msg.getFrom();
         Integer userId = user.getId();
 
-        if (txt.equals("/start")) {
+        if (requestText.equals("/start")) {
             if (!countOfGreetings.containsKey(userId)) {
                 countOfGreetings.put(userId, 1);
             } else {
@@ -67,25 +87,6 @@ public class Bot extends TelegramLongPollingBot {
             sendMsg(msg, greeting);
         }
     }
-
-    private String getFileContent(String fileName) {
-        String res = null;
-        try(InputStream inputStream = Bot.class.getResourceAsStream(fileName)) {
-            Scanner sc = new Scanner(inputStream).useDelimiter("\\n");
-            while (sc.hasNext()) {
-                res = sc.next();
-            }
-        } catch (Exception e) {
-            log.error("get token exception", e);
-        }
-        return res;
-    }
-
-    @Override
-    public String getBotToken() {
-        return getFileContent(TOKEN_FILENAME);
-    }
-
 
     private void sendMsg(Message msg, String text) {
         SendMessage s = new SendMessage();
