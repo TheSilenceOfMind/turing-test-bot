@@ -96,6 +96,13 @@
             <version>0.0.4.3</version>
         </dependency>
 
+        <!-- simplified interface to communicate with Yandex translation service -->
+        <dependency>
+            <groupId>com.github.kevinsawicki</groupId>
+            <artifactId>http-request</artifactId>
+            <version>6.0</version>
+        </dependency>
+
     </dependencies>
 
     <!-- register path to use local files from lib-directory simultaneously with

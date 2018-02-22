@@ -45,8 +45,10 @@ public class Bot extends TelegramLongPollingBot {
             prop.load(inputStream);
             botUsername = prop.getProperty("bot_username");
             token = prop.getProperty("token");
-
-            textProcessor = new TextProcessor();
+            textProcessor = new TextProcessor(
+                    prop.getProperty("text_processor_bot_name"),
+                    prop.getProperty("yandex_api_key")
+            );
 
             log.info("Bot-class constructor successfully worked out!");
         } catch (Exception e) {
