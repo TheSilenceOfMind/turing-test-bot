@@ -60,16 +60,16 @@ class TextProcessor {
             requestText = MagicStrings.null_input;
         if (MagicBooleans.trace_mode)
             log.info(
-                    "STATE=" + requestText
-                            + ":THAT=" + chatSession.thatHistory.get(0).get(0)
-                            + ":TOPIC=" + chatSession.predicates.get("topic")
+                    String.format("STATE=%s:THAT=%s:TOPIC=%s",
+                            requestText,
+                            chatSession.thatHistory.get(0).get(0),
+                            chatSession.predicates.get("topic")
+                    )
             );
         response = chatSession.multisentenceRespond(requestText);
-        while (response.contains("&lt;"))
-            response = response.replace("&lt;", "<");
-        while (response.contains("&gt;"))
-            response = response.replace("&gt;", ">");
-        log.info(response);
+        response = response.replace("&lt;", "<");
+        response = response.replace("&gt;", ">");
+        log.info(String.format("response in English: %s", response));
         response = getTranslation(response, userLangCode);
         return response;
     }
@@ -105,9 +105,9 @@ class TextProcessor {
         JSONObject jsonObject = new JSONObject(response);
         if (jsonObject.getInt("code") == 200) {
             response = jsonObject.getJSONArray("text").getString(0);
-            log.info(response);
+            log.info(String.format("Translated text: %s", response));
         } else {
-            log.error(response);
+            log.error(String.format("Error while translating text: %s", response));
         }
         return response;
     }
@@ -128,9 +128,9 @@ class TextProcessor {
         JSONObject jsonObject = new JSONObject(response);
         if (jsonObject.getInt("code") == 200) {
             response = jsonObject.getString("lang");
-            log.info(response);
+            log.info(String.format("Detected language: %s", response));
         } else {
-            log.error(response);
+            log.error(String.format("Error in detecting lang: %s", response));
         }
         return response;
     }
