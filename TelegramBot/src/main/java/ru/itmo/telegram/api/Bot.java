@@ -84,11 +84,8 @@ public class Bot extends TelegramLongPollingBot {
             String fullUserName =
                     (user.getFirstName() == null ? "" : user.getFirstName()) + " " +
                             (user.getLastName() == null ? "" : user.getLastName());
-            String greeting =
-                    "Hello, ".concat(fullUserName)
-                            .concat(" ! I've said you, that I'll **** you about ")
-                            .concat(countOfGreetings.get(userId).toString())
-                            .concat(" times!");
+            String greeting = String.format("Hello, %s ! I've said you that I'll **** you about %s times!",
+                    fullUserName, countOfGreetings.get(userId));
             sendMsg(msg, greeting);
         } else {
             sendMsg(msg, textProcessor.generateAnswer(requestText));
@@ -96,9 +93,9 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void sendMsg(Message msg, String text) {
-        SendMessage s = new SendMessage();
-        s.setChatId(msg.getChatId());
-        s.setText(text);
+        SendMessage s = new SendMessage()
+                .setChatId(msg.getChatId())
+                .setText(text);
         try {
             //noinspection deprecation
             sendMessage(s);
