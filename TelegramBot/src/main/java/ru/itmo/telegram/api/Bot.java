@@ -1,7 +1,7 @@
 package ru.itmo.telegram.api;
 
 /**
- * github.com/TheSilenceOfMind
+ * @author github.com/TheSilenceOfMind
  * Copyright (c) 2018
  * All rights reserved.
  */
@@ -22,7 +22,7 @@ import java.util.Properties;
 
 @Log4j2
 public class Bot extends TelegramLongPollingBot {
-    private static final String settingsFilename = "/settings.properties";
+    private static final String SETTINGS_FILENAME = "/settings.properties";
     private String botUsername;
     private String token;
     private TextProcessor textProcessor;
@@ -41,7 +41,7 @@ public class Bot extends TelegramLongPollingBot {
 
     private Bot() {
         Properties prop = new Properties();
-        try (InputStream inputStream = Bot.class.getResourceAsStream(settingsFilename)) {
+        try (InputStream inputStream = Bot.class.getResourceAsStream(SETTINGS_FILENAME)) {
             prop.load(inputStream);
             botUsername = prop.getProperty("bot_username", "");
             token = prop.getProperty("token", "");

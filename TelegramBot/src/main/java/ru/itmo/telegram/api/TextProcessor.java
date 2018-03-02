@@ -1,7 +1,7 @@
 package ru.itmo.telegram.api;
 
 /**
- * github.com/TheSilenceOfMind
+ * @author github.com/TheSilenceOfMind
  * Copyright (c) 2018
  * All rights reserved.
  */
@@ -29,15 +29,15 @@ class TextProcessor {
     private static final boolean TRACE_MODE = false;
     private static final String URL_YANDEX_TRANSLATE = "https://translate.yandex.net/api/v1.5/tr.json/translate";
     private static final String URL_YANDEX_DETECT_LANG = "https://translate.yandex.net/api/v1.5/tr.json/detect";
-    private Bot bot;
     private Chat chatSession;
     private static String apiKey;
+    private static String lastLanguageCode = "en";
 
     TextProcessor(String botName, String apiKey) {
         TextProcessor.apiKey = apiKey;
         String resourcesPath = getResourcesPath();
         MagicBooleans.trace_mode = TRACE_MODE;
-        bot = new Bot(botName, resourcesPath);  // ALICE bot, not mine!
+        Bot bot = new Bot(botName, resourcesPath);
         chatSession = new Chat(bot);
         bot.brain.nodeStats();
     }
@@ -54,9 +54,10 @@ class TextProcessor {
      */
     public String generateAnswer(String requestText) {
         String userLangCode = detectLanguageCode(requestText);
-        String response;
+        if (userLangCode.isEmpty())
+            userLangCode = lastLanguageCode;
         requestText = getTranslation(requestText, "en");
-        if ((requestText == null) || (requestText.length() < 1))
+        if (requestText == null || requestText.isEmpty())
             requestText = MagicStrings.null_input;
         if (MagicBooleans.trace_mode)
             log.info(
@@ -66,9 +67,11 @@ class TextProcessor {
                             chatSession.predicates.get("topic")
                     )
             );
-        response = chatSession.multisentenceRespond(requestText);
+
+        String response = chatSession.multisentenceRespond(requestText);
         response = response.replace("&lt;", "<");
         response = response.replace("&gt;", ">");
+
         log.info(String.format("response in English: %s", response));
         response = getTranslation(response, userLangCode);
         return response;
@@ -83,7 +86,7 @@ class TextProcessor {
         File currDir = new File(".");
         String path = currDir.getAbsolutePath();
         path = path.substring(0, path.length() - 2);
-        return path + File.separator + "src" + File.separator + "main" + File.separator + "resources";
+        return String.format("%s%ssrc%<smain%<sresources", path, File.separator);
     }
 
     /**
@@ -105,7 +108,7 @@ class TextProcessor {
         JSONObject jsonObject = new JSONObject(response);
         if (jsonObject.getInt("code") == 200) {
             response = jsonObject.getJSONArray("text").getString(0);
-            log.info(String.format("Translated text: %s", response));
+            log.info(String.format("Translated to %s: %s", languageCode, response));
         } else {
             log.error(String.format("Error while translating text: %s", response));
         }
@@ -126,12 +129,13 @@ class TextProcessor {
         ).body(); // get URL_YANDEX_DETECT_LANG?key=...&text=...
 
         JSONObject jsonObject = new JSONObject(response);
-        if (jsonObject.getInt("code") == 200) {
-            response = jsonObject.getString("lang");
-            log.info(String.format("Detected language: %s", response));
+        String ret = jsonObject.getString("lang");
+        if (jsonObject.getInt("code") == 200 && !(ret.isEmpty())) {
+            log.info(String.format("Detected language: %s", ret));
+            lastLanguageCode = ret;
         } else {
-            log.error(String.format("Error in detecting lang: %s", response));
+            log.warn(String.format("Error in detecting lang: %s", response));
         }
-        return response;
+        return ret;
     }
 }
