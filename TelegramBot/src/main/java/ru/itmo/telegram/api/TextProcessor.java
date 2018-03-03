@@ -111,6 +111,7 @@ class TextProcessor {
             log.info(String.format("Translated to %s: %s", languageCode, response));
         } else {
             log.error(String.format("Error while translating text: %s", response));
+            response = text;
         }
         return response;
     }
