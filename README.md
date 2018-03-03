@@ -1,4 +1,4 @@
-# turing-test-bot
+Working example of the bot in the telegram: ```@test_the_silence_bot```
 
 ## About
 
